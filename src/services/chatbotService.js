@@ -1,9 +1,18 @@
 'use strict'
 const dialogFlow = require('dialogflow');
+const { config } = require('dotenv');
 const configKeys = require('../configs/keys');
 const structjson = require('../services/structjson')
 
-const sessionClient = new dialogFlow.SessionsClient();
+const projectID = configKeys.googleProcjectID;
+
+const credentials = {
+    client_email: configKeys.googleClientEmail,
+    private_key: configKeys.googlePrivateKey
+}
+
+const sessionClient = new dialogFlow.SessionsClient({ projectID, credentials });
+
 const sessionPath = sessionClient.sessionPath(configKeys.googleProcjectID, configKeys.dialogFlowSessionID)
 
 module.exports = {
