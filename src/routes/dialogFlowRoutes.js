@@ -3,8 +3,6 @@ import homeController from '../controllers/HomeController';
 
 let router = express.Router();
 
-const chatbotService = require('../services/chatbotService');
-
 let initDialogFlowRoutes = (app) => {
     router.get("/", homeController.getHomePage);
 

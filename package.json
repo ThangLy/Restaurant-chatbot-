@@ -22,9 +22,12 @@
     "request": "^2.88.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.18.2",
+    "@babel/core": "^7.18.5",
     "@babel/node": "^7.17.10",
     "@babel/preset-env": "^7.18.2",
-    "nodemon": "^2.0.16"
+    "babel-loader": "^8.2.5",
+    "babel-preset-stage-0": "^6.24.1",
+    "nodemon": "^2.0.16",
+    "webpack": "^5.73.0"
   }
 }
