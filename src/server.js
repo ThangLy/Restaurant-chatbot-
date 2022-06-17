@@ -13,8 +13,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 viewEngine(app);
 
 //config view routes
-//webRoutes(app);
-
 dialogFlowRoutes(app);
 
 let port = process.env.PORT || 5000;
