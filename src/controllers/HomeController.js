@@ -11,7 +11,7 @@ let dfTextQuery = async (req, res) => {
 };
 
 let dfEventQuery = async (req, res) => {
-    let responses = await chatbotService.eventQuery(req.body.text, req.body.parameters);
+    let responses = await chatbotService.eventQuery(req.body.event, req.body.parameters);
     res.send(responses[0].queryResult);
 };
 

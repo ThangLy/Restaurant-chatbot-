@@ -1,10 +1,10 @@
 'use strict'
 const dialogFlow = require('dialogflow');
-const { config } = require('dotenv');
 const configKeys = require('../configs/keys');
 const structjson = require('../services/structjson')
 
 const projectID = configKeys.googleProcjectID;
+const languageCode = configKeys.dialogFlowSessionLanguageCode;
 
 const credentials = {
     client_email: configKeys.googleClientEmail,
@@ -23,7 +23,7 @@ module.exports = {
             queryInput: {
                 text: {
                     text: text,
-                    languageCode: configKeys.dialogFlowSessionLanguageCode,
+                    languageCode: languageCode,
                 },
             },
             queryParams: {
@@ -45,14 +45,15 @@ module.exports = {
                 event: {
                     name: event,
                     parameters: structjson.jsonToStructProto(parameters),
-                    languageCode: configKeys.dialogFlowSessionLanguageCode,
+                    languageCode: languageCode,
                 },
             }
-
         };
+
         let responses = await sessionClient.detectIntent(request);
         responses = await self.handleAction(responses);
         return responses;
+
     },
 
     handleAction: function (responses) {
