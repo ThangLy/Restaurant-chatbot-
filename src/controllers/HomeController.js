@@ -1,7 +1,6 @@
 import request from "request";
 import chatbotService from "../services/chatbotService";
 
-
 let getHomePage = (req, res) => {
     return res.render('homepage.ejs')
 };
