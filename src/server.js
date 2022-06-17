@@ -1,7 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import viewEngine from "./configs/viewEngine";
-import webRoutes from "./routes/web";
+//import webRoutes from "./routes/web";
 import dialogFlowRoutes from "./routes/dialogFlowRoutes";
 
 let app = express();
@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 viewEngine(app);
 
 //config view routes
-webRoutes(app);
+//webRoutes(app);
 
 dialogFlowRoutes(app);
 
