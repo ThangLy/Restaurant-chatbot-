@@ -1,7 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
 import viewEngine from "./configs/viewEngine";
-//import webRoutes from "./routes/web";
 import dialogFlowRoutes from "./routes/dialogFlowRoutes";
 
 let app = express();

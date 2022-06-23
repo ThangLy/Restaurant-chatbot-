@@ -1,0 +1,70 @@
+.restaurant-chatbot-container {
+    position: absolute;
+    width: 350px;
+    right: 30px;
+}
+
+.restaurant-chatbot-inner-container {
+    height: 470px;
+    background-color: #fff;
+    border-radius: 3px;
+    border-radius: 5px;
+    border: 1px solid lightgray;
+
+}
+
+.restaurant-chatbot-header {
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    background-color: #ff5252;
+    padding: 0 10px;
+    height: 50px;
+    line-Height: 50px;
+}
+
+.restaurant-chatbot-input-container {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+}
+
+.restaurant-chatbot-message-container {
+    padding: 10px 10px 10px 10px;
+    overflow: auto;
+    height: 388px;
+}
+
+.restaurant-chatbot-input {
+    width: 100%;
+    padding: 12.5px;
+    border: none;
+    font-size: 0.85rem;
+    border-top: 1px solid #d8d8d8;
+    border-bottom-left-radius: 5px;
+    margin: 0;
+}
+
+.restaurant-chatbot-input-form {
+    width: 100%;
+    display: flex;
+    border-top: 1px solid lightgray;
+}
+
+.restaurant-chatbot-input::placeholder {
+    color: #585858;
+}
+
+.restaurant-chatbot-btn-send {
+    background-color: #2898ec;
+    width: 100px;
+    border: none;
+    color: #fff;
+    border-bottom-right-radius: 5px;
+}
+
+.restaurant-chatbot-btn-send-icon {
+    fill: #fff;
+    width: 15px;
+    margin: 0 auto;
+}
