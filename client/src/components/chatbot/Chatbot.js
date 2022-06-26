@@ -6,6 +6,7 @@ import Cookies from 'universal-cookie';
 import { v4 as uuid } from 'uuid';
 
 import Message from '../message/Message';
+import Card from '../card/Card';
 
 const cookies = new Cookies();
 
@@ -63,19 +64,44 @@ class Chatbot extends Component {
     componentDidMount() {
         this.df_event_query('welcome');
     }
+
     componentDidUpdate() {
         this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+        if (this.talkInput) {
+            this.talkInput.focus();
+        }
+    }
+    renderCards(richContent) {
+        return richContent.map((card, i) => <Card key={i} payload={card.structValue} />);
+
     }
 
+    renderOneMessage(message, i) {
+
+        if (message.msg && message.msg.text && message.msg.text.text) {
+
+            return <Message key={i} speaks={message.speaks} text={message.msg.text.text} />;
+        } else if (message.msg && message.msg.payload && message.msg.payload.fields.richContent) { //message.msg.payload.fields.richContent.listValue.values
+
+            return <div key={i}>
+                <div className="df-card">
+                    <div style={{ overflow: 'hidden' }}>
+                        <div >
+                            <div style={{ height: 460, width: message.msg.payload.fields.richContent.listValue.values.length * 270 }}>
+                                {this.renderCards(message.msg.payload.fields.richContent.listValue.values)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div >
+        }
+    }
 
     renderMessages(returnedMessages) {
+
         if (returnedMessages) {
             return returnedMessages.map((message, i) => {
-                if (message.msg && message.msg.text && message.msg.text.text) {
-                    return <Message key={i} speaks={message.speaks} text={message.msg.text.text} />;
-                } else {
-                    return <h2>richContent</h2>;
-                }
+                return this.renderOneMessage(message, i);
 
             }
             )
