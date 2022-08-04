@@ -4,7 +4,7 @@ import homeController from '../controllers/HomeController';
 let router = express.Router();
 
 let initDialogFlowRoutes = (app) => {
-    router.get("/", homeController.getHomePage);
+    // router.get("/", homeController.getHomePage);
 
     router.post("/api/df_text_query", homeController.dfTextQuery);
 
