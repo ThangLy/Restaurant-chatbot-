@@ -1,14 +1,10 @@
-import 'materialize-css/dist/css/materialize.min.css';
-import { StrictMode } from "react";
-import ReactDOM from 'react-dom';
-
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 import App from './components/App';
-//import registerServiceWorker from './registerServiceWorker';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './stylesheet/index.css';
+import registerServiceWorker from './registerServiceWorker';
 
-const rootElement = document.getElementById("root");
-ReactDOM.render(
-    <StrictMode>
-        <App />
-    </StrictMode>,
-    rootElement
-);
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+registerServiceWorker();

@@ -1,25 +1,23 @@
-import React from 'react';
+import Layout from './Layout';
+import Home from './pages/Home';
+import About from './pages/About';
+import Menu from './pages/Menu';
+import Contact from './pages/Contact';
+import NotFound from './pages/NotFound';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import Header from './Header';
-import Landing from './pages/Landing';
-import About from './pages/About';
-import Chatbot from './chatbot/Chatbot';
-const App = () => (
-
-    <div>
+export default function App() {
+    return (
         <BrowserRouter>
-            <div className="container">
-                <Header />
-                <Routes>
-                    <Route path="/" element={<Landing />} />
-                    <Route path="/about" element={<About />} />
-                </Routes>
-
-                <Chatbot />
-            </div>
+            <Routes>
+                <Route path="/" element={<Layout />}>
+                    <Route index element={<Home />} />
+                    <Route path="about" element={<About />} />
+                    <Route path="menu" element={<Menu />} />
+                    <Route path="contact" element={<Contact />} />
+                </Route>
+                <Route path="*" element={<NotFound />} />
+            </Routes>
         </BrowserRouter>
-    </div>
-)
-
-export default App;
+    );
+}

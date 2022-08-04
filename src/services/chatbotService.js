@@ -1,7 +1,8 @@
 'use strict'
-const dialogFlow = require('dialogflow');
-const configKeys = require('../configs/keys');
-const structjson = require('../services/structjson')
+import dialogFlow from 'dialogflow';
+import configKeys from '../config/keys';
+import structjson from '../services/structjson';
+const Reservation = require('../models/Reservation');
 
 const projectId = configKeys.googleProcjectID;
 const sessionId = configKeys.dialogFlowSessionID;
@@ -65,6 +66,37 @@ module.exports = {
 
 
     handleAction: function (responses) {
+        let self = module.exports;
+        let queryResult = responses[0].queryResult;
+
+        switch (queryResult.queryText) {
+            case 'Đặt bàn':
+                // console.log(queryResult.queryText);
+                // console.log(queryResult.fulfillmentMessages);
+                //console.log(queryResult.parameters.fields);
+                //self.saveReservation(queryResult.parameters.fields);
+                break;
+        }
+
+
         return responses;
+    },
+
+    saveReservation: async function (fields) {
+        console.log(fields);
+        const reservation = new Reservation({
+            name: fields.name.stringValue,
+            phone: fields['phone-number'].stringValue,
+            time: fields.time.stringValue,
+            guests: fields.guests.stringValue,
+            reservationDate: Date.now()
+        });
+        try {
+            let reg = await reservation.save();
+            console.log(reg);
+        } catch (err) {
+            console.log(err);
+        }
     }
+
 }

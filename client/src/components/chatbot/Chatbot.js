@@ -1,159 +1,191 @@
-import './Chatbot.css'
-import React, { Component } from 'react';
-import axios from "axios/index";
-
+import { useState, useEffect, useRef, createContext } from 'react';
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 import Cookies from 'universal-cookie';
-import { v4 as uuid } from 'uuid';
-
-import Message from '../message/Message';
-import Card from '../card/Card';
+import Message from './Message';
+import QuickReplies from './QuickReplies';
 
 const cookies = new Cookies();
+export const UserContext = createContext();
 
-class Chatbot extends Component {
+export default function Chatbot(props) {
+    const [messages, setMessages] = useState([]);
+    const inputRef = useRef(null);
+    const [disabledInput, setDisabledInput] = useState(false);
 
-    messagesEnd;
-    constructor(props) {
-        super(props);
-        // This binding is necessary to make `this` work in the callback
-        this._handleInputKeyPress = this._handleInputKeyPress.bind(this);
-        this.state = {
-            messages: []
-        };
-        if (cookies.get('userID') === undefined) {
-            cookies.set('userID', uuid(), { path: '/' });
-        }
+    const updateMessages = (msg) => {
+        setMessages((currentMessage) => {
+            return [...currentMessage, msg];
+        });
+    };
+
+    if (cookies.get('userID') === undefined) {
+        cookies.set('userID', uuidv4(), { path: '/' });
     }
 
-    async df_text_query(queryText) {
-        let says = {
+    const df_text_query = async (text) => {
+        let newMessage = {
             speaks: 'user',
             msg: {
                 text: {
-                    text: queryText
+                    text: text
                 }
             }
-        }
-        this.setState({ messages: [...this.state.messages, says] });
-        const res = await axios.post('/api/df_text_query', { text: queryText });
+        };
+        updateMessages(newMessage);
 
-        for (let msg of res.data.fulfillmentMessages) {
-            says = {
+        const res = await axios.post('/api/df_text_query', { text: text });
+        res.data.fulfillmentMessages.forEach((msg) => {
+            newMessage = {
                 speaks: 'bot',
-                msg: msg
-            }
-            this.setState({ messages: [...this.state.messages, says] });
-        }
+                msg: msg,
+            };
+            updateMessages(newMessage);
+        });
     };
 
-
-    async df_event_query(eventName) {
+    const df_event_query = async (eventName) => {
 
         const res = await axios.post('/api/df_event_query', { event: eventName });
-
-        for (let msg of res.data.fulfillmentMessages) {
-            let says = {
+        res.data.fulfillmentMessages.forEach((msg) => {
+            let newMessage = {
                 speaks: 'bot',
-                msg: msg
-            }
+                msg: msg,
+            };
+            updateMessages(newMessage);
+        });
+    };
+    const handleQuickReplyPayload = (event, text) => {
+        event.preventDefault();
+        event.stopPropagation();
 
-            this.setState({ messages: [...this.state.messages, says] });
-        }
+        df_text_query(text);
+
     };
 
-    componentDidMount() {
-        this.df_event_query('welcome');
-    }
+    const renderMessage = (msg, index) => {
+        if (msg.msg?.text?.text) {
+            return (
+                <Message
+                    key={index}
+                    speaks={msg.speaks}
+                    text={msg.msg.text.text}
+                />
+            );
+        } else if (msg.msg?.payload?.fields?.richContent) { //message.msg.payload.fields.richContent.listValue.values
 
-    componentDidUpdate() {
-        this.messagesEnd.scrollIntoView({ behavior: "smooth" });
-        if (this.talkInput) {
-            this.talkInput.focus();
-        }
-    }
-    renderCards(richContent) {
-        return richContent.map((card, i) => <Card key={i} payload={card.structValue} />);
+            return <Message
+                key={index}
+                speaks={msg.speaks}
+                content={msg.msg.payload.fields.richContent}
+                isImage={true} />;
 
-    }
+        } else if (
+            msg.msg?.payload?.fields?.options) {
 
-    renderOneMessage(message, i) {
-
-        if (message.msg && message.msg.text && message.msg.text.text) {
-
-            return <Message key={i} speaks={message.speaks} text={message.msg.text.text} />;
-        } else if (message.msg && message.msg.payload && message.msg.payload.fields.richContent) { //message.msg.payload.fields.richContent.listValue.values
-
-            return <div key={i}>
-                <div className="df-card">
-                    <div style={{ overflow: 'hidden' }}>
-                        <div >
-                            <div style={{ height: 460, width: message.msg.payload.fields.richContent.listValue.values.length * 270 }}>
-                                {this.renderCards(message.msg.payload.fields.richContent.listValue.values)}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div >
-        }
-    }
-
-    renderMessages(returnedMessages) {
-
-        if (returnedMessages) {
-            return returnedMessages.map((message, i) => {
-                return this.renderOneMessage(message, i);
-
-            }
-            )
+            return <QuickReplies
+                text={msg.msg.payload.fields.text ? msg.msg.payload.fields.text : null}
+                key={index}
+                replyClick={handleQuickReplyPayload}
+                speaks={msg.speaks}
+                content={msg.msg.payload.fields.options.listValue.values} />;
         } else {
             return null;
         }
-    }
+    };
 
-    _handleInputKeyPress(e) {
-        if (e.key === 'Enter') {
-            this.df_text_query(e.target.value);
-            e.target.value = '';
+    const renderMessages = (messages) => {
+        if (messages) {
+            return messages.map((message, index) => {
+                return renderMessage(message, index);
+            });
         }
-    }
+        return null;
+    };
 
-    render() {
+    useEffect(() => {
+        async function fetchData() {
+            await df_event_query('Welcome');
+        }
+        fetchData();
+        // eslint-disable-next-line
+    }, []);
 
-        return (
-            <div className='restaurant-chatbot-container'>
-                <div className='restaurant-chatbot-inner-container'>
-                    <nav className='restaurant-chatbot-header'>
-                        <div className="nav-wrapper ">
-                            <a href="/" className="brand-logo" style={{ fontSize: '1.5rem' }}>Lẩu Thuận Phát</a>
-                            <ul id="nav-mobile" className="right hide-on-med-and-down">
-                                <li><a href="/" onClick={this.hide}>x</a></li>
-                            </ul>
-                        </div>
-                    </nav>
+    const handleInputMessage = (event) => {
+        if (event.key === 'Enter') {
+            df_text_query(event.target.value);
+            event.target.value = '';
+            handleInputDelay();
+        }
+    };
 
-                    <div id="chatbot" className='restaurant-chatbot-message-container'>
+    const handleButtonMessage = () => {
+        df_text_query(inputRef.current.value);
+        inputRef.current.value = '';
+        handleInputDelay();
+    };
 
-                        {this.renderMessages(this.state.messages)}
-                        <div ref={(el) => { this.messagesEnd = el; }}
-                            style={{ float: "left", clear: "both" }}>
-                        </div>
-                    </div>
-                    <div className='restaurant-chatbot-input-container'>
-                        <form className='restaurant-chatbot-input-form'>
+    const handleInputDelay = () => {
+        setDisabledInput(true);
+        setTimeout(() => {
+            setDisabledInput(false);
+        }, 1500);
+        setTimeout(() => {
+            inputRef.current.focus();
+        }, 1600);
+    };
 
-                            <input style={{ margin: 0, paddingLeft: '1%', paddingRight: '1%', width: '98%', border: 'none' }} ref={(input) => { this.talkInput = input; }}
-                                placeholder="Nhắn tin...:"
-                                onKeyPress={this._handleInputKeyPress}
-                                id="user_says"
-                                type="text" />
-                            <button className="restaurant-chatbot-btn-send" >Gửi</button>
-                        </form>
-                    </div>
+    return (
+        <UserContext.Provider value={messages}>
+            <div className="card chat-bot-container mx-auto">
+                <div
+                    className="card-header text-center p-3 border-bottom-0"
+                    style={{
+                        borderTopLeftRadius: '15px',
+                        borderTopRightRadius: '15px',
+                    }}
+                >
+                    <p className="mb-0 fw-bold fs-5">
+                        <span className="dot"></span> Nhà hàng Thuận Phát
+                    </p>
+                </div>
+
+                <div className="card-body chat-bot">
+                    {renderMessages(messages)}
+                    <ScrollToBottom messages={messages} />
+                </div>
+
+                <div
+                    className="card-footer input-group border-top-0"
+                    style={{
+                        borderBottomLeftRadius: '15px',
+                        borderBottomRightRadius: '15px',
+                    }}
+                >
+                    <input
+                        type="text"
+                        autoFocus
+                        name="inputMessage"
+                        placeholder="nhập tin nhắn..."
+                        ref={inputRef}
+                        onKeyUp={handleInputMessage}
+                        className="form-control"
+                        disabled={disabledInput}
+                    />
+
+                    <button onClick={handleButtonMessage} className="input-group-text">
+                        <i className="fas fa-paper-plane" style={{ color: '#9c191b' }}></i>
+                    </button>
                 </div>
             </div>
-        );
-
-    }
+        </UserContext.Provider>
+    );
 }
 
-export default Chatbot;
+function ScrollToBottom(props) {
+    const elementRef = useRef(null);
+    useEffect(() => {
+        elementRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [props.messages]);
+    return <div ref={elementRef} />;
+}
